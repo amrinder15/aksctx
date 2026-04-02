@@ -70,7 +70,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-That triggers the GitHub Actions release workflow, which builds binaries, creates a GitHub release, and updates the `amrinder15/tap` formula automatically.
+That triggers the GitHub Actions release workflow, which builds binaries, creates a GitHub release, and updates the `amrinder15/homebrew-tap` repository automatically.
 
 **Go install:**
 

@@ -42,7 +42,7 @@ brews:
   - name: aksctx
     repository:
       owner: amrinder15
-      name: tap
+      name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
     homepage: https://github.com/amrinder15/aksctx
     description: AKS context switcher for discovering and switching clusters across Azure subscriptions
