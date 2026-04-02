@@ -1,9 +1,12 @@
 package kubeconfig
 
 import (
+	"bytes"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -52,6 +55,41 @@ func MergeAndSwitch(kubeconfigBytes []byte, clusterName string) error {
 	// Write back
 	if err := clientcmd.WriteToFile(*existing, kubeconfigPath); err != nil {
 		return fmt.Errorf("writing kubeconfig: %w", err)
+	}
+
+	contextName := incoming.CurrentContext
+	if contextName == "" {
+		contextName = clusterName
+	}
+
+	if err := convertKubeconfig(kubeconfigPath, contextName); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func convertKubeconfig(kubeconfigPath, contextName string) error {
+	kubeloginPath, err := exec.LookPath("kubelogin")
+	if err != nil {
+		return fmt.Errorf("kubelogin is required after merging AKS credentials: install kubelogin and retry")
+	}
+
+	args := []string{"convert-kubeconfig", "-l", "azurecli", "--kubeconfig", kubeconfigPath}
+	if strings.TrimSpace(contextName) != "" {
+		args = append(args, "--context", contextName)
+	}
+
+	cmd := exec.Command(kubeloginPath, args...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		message := strings.TrimSpace(stderr.String())
+		if message == "" {
+			return fmt.Errorf("running kubelogin convert-kubeconfig: %w", err)
+		}
+		return fmt.Errorf("running kubelogin convert-kubeconfig: %s", message)
 	}
 
 	return nil

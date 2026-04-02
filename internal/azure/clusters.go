@@ -3,21 +3,23 @@ package azure
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
+	"github.com/Azure/azure-sdk-for-go/sdk/azcore/arm"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/containerservice/armcontainerservice/v6"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/subscription/armsubscription"
 )
 
 // Cluster holds the relevant info for an AKS cluster.
 type Cluster struct {
-	Name           string
-	ResourceGroup  string
-	SubscriptionID string
+	Name             string
+	ResourceGroup    string
+	SubscriptionID   string
 	SubscriptionName string
-	Location       string
-	K8sVersion     string
-	NodeCount      int32
+	Location         string
+	K8sVersion       string
+	NodeCount        int32
 }
 
 // DisplayName returns a human-friendly label for the TUI picker.
@@ -25,9 +27,10 @@ func (c Cluster) DisplayName() string {
 	return fmt.Sprintf("%s  [%s / %s]", c.Name, c.SubscriptionName, c.Location)
 }
 
-// ListAllClusters discovers AKS clusters across all accessible subscriptions.
-func ListAllClusters(ctx context.Context, cred azcore.TokenCredential) ([]Cluster, error) {
-	subs, err := listSubscriptions(ctx, cred)
+// ListAllClusters discovers AKS clusters across all accessible subscriptions,
+// or within a single subscription when subscriptionName is provided.
+func ListAllClusters(ctx context.Context, cred azcore.TokenCredential, subscriptionName string) ([]Cluster, error) {
+	subs, err := listSubscriptions(ctx, cred, subscriptionName)
 	if err != nil {
 		return nil, err
 	}
@@ -51,13 +54,14 @@ type subscription struct {
 	name string
 }
 
-func listSubscriptions(ctx context.Context, cred azcore.TokenCredential) ([]subscription, error) {
+func listSubscriptions(ctx context.Context, cred azcore.TokenCredential, subscriptionName string) ([]subscription, error) {
 	client, err := armsubscription.NewSubscriptionsClient(cred, nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating subscriptions client: %w", err)
 	}
 
 	var subs []subscription
+	filterName := strings.TrimSpace(subscriptionName)
 	pager := client.NewListPager(nil)
 	for pager.More() {
 		page, err := pager.NextPage(ctx)
@@ -66,10 +70,18 @@ func listSubscriptions(ctx context.Context, cred azcore.TokenCredential) ([]subs
 		}
 		for _, s := range page.Value {
 			if s.SubscriptionID != nil && s.DisplayName != nil {
+				if filterName != "" && !strings.EqualFold(*s.DisplayName, filterName) {
+					continue
+				}
 				subs = append(subs, subscription{id: *s.SubscriptionID, name: *s.DisplayName})
 			}
 		}
 	}
+
+	if filterName != "" && len(subs) == 0 {
+		return nil, fmt.Errorf("no Azure subscription matched name %q", filterName)
+	}
+
 	return subs, nil
 }
 
@@ -125,6 +137,10 @@ func GetClusterKubeconfig(ctx context.Context, cred azcore.TokenCredential, clus
 		return nil, fmt.Errorf("creating AKS client: %w", err)
 	}
 
+	if strings.TrimSpace(cluster.ResourceGroup) == "" {
+		return nil, fmt.Errorf("fetching kubeconfig for %s: resource group is empty", cluster.Name)
+	}
+
 	result, err := client.ListClusterUserCredentials(ctx, cluster.ResourceGroup, cluster.Name, nil)
 	if err != nil {
 		return nil, fmt.Errorf("fetching kubeconfig for %s: %w", cluster.Name, err)
@@ -140,24 +156,14 @@ func GetClusterKubeconfig(ctx context.Context, cred azcore.TokenCredential, clus
 // resourceGroupFromID parses the resource group name from an ARM resource ID.
 // e.g. /subscriptions/{sub}/resourceGroups/{rg}/providers/...
 func resourceGroupFromID(id string) string {
-	const marker = "/resourceGroups/"
-	idx := indexOf(id, marker)
-	if idx < 0 {
+	if strings.TrimSpace(id) == "" {
 		return ""
 	}
-	rest := id[idx+len(marker):]
-	end := indexOf(rest, "/")
-	if end < 0 {
-		return rest
-	}
-	return rest[:end]
-}
 
-func indexOf(s, substr string) int {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return i
-		}
+	resourceID, err := arm.ParseResourceID(id)
+	if err != nil || resourceID == nil {
+		return ""
 	}
-	return -1
+
+	return resourceID.ResourceGroupName
 }

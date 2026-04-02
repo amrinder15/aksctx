@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var subscriptionName string
+
 var rootCmd = &cobra.Command{
 	Use:   "aksctx",
 	Short: "AKS context switcher — discover and switch between AKS clusters across Azure subscriptions",
@@ -26,6 +28,8 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.PersistentFlags().StringVar(&subscriptionName, "subscription", "", "Limit AKS discovery to a single Azure subscription name")
+
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(switchCmd)
 	rootCmd.AddCommand(currentCmd)

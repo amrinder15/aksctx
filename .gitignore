@@ -1,0 +1,14 @@
+# Go build artifacts
+/aksctx
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+
+# Coverage reports
+coverage.out
+coverage.html
+
+# macOS metadata
+.DS_Store

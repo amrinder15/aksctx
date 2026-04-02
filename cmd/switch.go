@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/amrinder/aksctx/internal/azure"
-	"github.com/amrinder/aksctx/internal/kubeconfig"
-	"github.com/amrinder/aksctx/internal/tui"
+	"github.com/amrinder15/aksctx/internal/azure"
+	"github.com/amrinder15/aksctx/internal/kubeconfig"
+	"github.com/amrinder15/aksctx/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -22,14 +22,23 @@ var switchCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("🔍 Discovering AKS clusters...")
-		clusters, err := azure.ListAllClusters(ctx, cred)
+		if subscriptionName == "" {
+			fmt.Println("🔍 Discovering AKS clusters...")
+		} else {
+			fmt.Printf("🔍 Discovering AKS clusters in subscription %q...\n", subscriptionName)
+		}
+
+		clusters, err := azure.ListAllClusters(ctx, cred, subscriptionName)
 		if err != nil {
 			return fmt.Errorf("listing clusters: %w", err)
 		}
 
 		if len(clusters) == 0 {
-			fmt.Println("No AKS clusters found across your subscriptions.")
+			if subscriptionName == "" {
+				fmt.Println("No AKS clusters found across your subscriptions.")
+			} else {
+				fmt.Printf("No AKS clusters found in subscription %q.\n", subscriptionName)
+			}
 			return nil
 		}
 
@@ -38,7 +47,7 @@ var switchCmd = &cobra.Command{
 		for i, c := range clusters {
 			items[i] = tui.Item{
 				Label:       c.Name,
-				Description: fmt.Sprintf("%s / %s / k8s %s / %d nodes", c.SubscriptionName, c.Location, c.K8sVersion, c.NodeCount),
+				Description: fmt.Sprintf("%s / %s / %s / k8s %s / %d nodes", c.SubscriptionName, c.Location, c.ResourceGroup, c.K8sVersion, c.NodeCount),
 				Value:       c,
 			}
 		}

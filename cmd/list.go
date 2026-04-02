@@ -6,13 +6,13 @@ import (
 	"os"
 	"text/tabwriter"
 
-	"github.com/amrinder/aksctx/internal/azure"
+	"github.com/amrinder15/aksctx/internal/azure"
 	"github.com/spf13/cobra"
 )
 
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all AKS clusters across your Azure subscriptions",
+	Short: "List AKS clusters across your Azure subscriptions",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -21,8 +21,13 @@ var listCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("🔍 Discovering AKS clusters across subscriptions...")
-		clusters, err := azure.ListAllClusters(ctx, cred)
+		if subscriptionName == "" {
+			fmt.Println("🔍 Discovering AKS clusters across subscriptions...")
+		} else {
+			fmt.Printf("🔍 Discovering AKS clusters in subscription %q...\n", subscriptionName)
+		}
+
+		clusters, err := azure.ListAllClusters(ctx, cred, subscriptionName)
 		if err != nil {
 			return fmt.Errorf("listing clusters: %w", err)
 		}

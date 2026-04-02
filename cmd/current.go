@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/amrinder/aksctx/internal/kubeconfig"
+	"github.com/amrinder15/aksctx/internal/kubeconfig"
 	"github.com/spf13/cobra"
 )
 

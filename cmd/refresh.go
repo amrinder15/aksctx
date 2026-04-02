@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/amrinder/aksctx/internal/azure"
-	"github.com/amrinder/aksctx/internal/kubeconfig"
+	"github.com/amrinder15/aksctx/internal/azure"
+	"github.com/amrinder15/aksctx/internal/kubeconfig"
 	"github.com/spf13/cobra"
 )
 
@@ -31,8 +31,13 @@ Useful when your token has expired or credentials have rotated.`,
 		}
 
 		// Discover clusters and find the one matching current context
-		fmt.Println("🔍 Looking up cluster...")
-		clusters, err := azure.ListAllClusters(ctx, cred)
+		if subscriptionName == "" {
+			fmt.Println("🔍 Looking up cluster...")
+		} else {
+			fmt.Printf("🔍 Looking up cluster in subscription %q...\n", subscriptionName)
+		}
+
+		clusters, err := azure.ListAllClusters(ctx, cred, subscriptionName)
 		if err != nil {
 			return fmt.Errorf("listing clusters: %w", err)
 		}
