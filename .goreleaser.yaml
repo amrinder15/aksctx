@@ -1,0 +1,59 @@
+version: 2
+
+project_name: aksctx
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: aksctx
+    main: ./main.go
+    binary: aksctx
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+
+archives:
+  - id: aksctx
+    builds:
+      - aksctx
+    formats:
+      - tar.gz
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64{{ else }}{{ .Arch }}{{ end }}
+    files:
+      - README.md
+
+checksum:
+  name_template: checksums.txt
+
+brews:
+  - name: aksctx
+    repository:
+      owner: amrinder15
+      name: tap
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    homepage: https://github.com/amrinder15/aksctx
+    description: AKS context switcher for discovering and switching clusters across Azure subscriptions
+    license: MIT
+    directory: Formula
+    install: |
+      bin.install "aksctx"
+    test: |
+      system "#{bin}/aksctx", "--help"
+
+release:
+  github:
+    owner: amrinder15
+    name: aksctx
