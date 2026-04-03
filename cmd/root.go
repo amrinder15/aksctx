@@ -8,6 +8,10 @@ import (
 )
 
 var subscriptionName string
+var showVersion bool
+
+// version is overridden at build time for release binaries.
+var version = "dev"
 
 var rootCmd = &cobra.Command{
 	Use:   "aksctx",
@@ -17,7 +21,15 @@ Azure subscriptions without needing to remember resource group or cluster names.
 
 It uses your existing Azure credentials (az login, environment variables,
 or Workload Identity) and merges cluster credentials directly into your
-~/.kube/config file.`,
+	~/.kube/config file.`,
+	Version: version,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if showVersion {
+			fmt.Fprintln(cmd.OutOrStdout(), cmd.Version)
+			return nil
+		}
+		return cmd.Help()
+	},
 }
 
 func Execute() {
@@ -28,6 +40,7 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.Flags().BoolVarP(&showVersion, "version", "v", false, "Print version")
 	rootCmd.PersistentFlags().StringVar(&subscriptionName, "subscription", "", "Limit AKS discovery to a single Azure subscription name")
 
 	rootCmd.AddCommand(listCmd)

@@ -23,6 +23,7 @@ Select an AKS cluster
    Resource Group: rg-platform-prod
    Location      : eastus
    K8s Version   : 1.29.4
+      Namespace     : payments
 ```
 
 Limit discovery to a single subscription when you already know its name:
@@ -46,12 +47,12 @@ You need to know the exact resource group and subscription ID by heart. `aksctx`
 
 ## Commands
 
-| Command          | Description                                               |
-|------------------|-----------------------------------------------------------|
-| `aksctx switch`  | Interactive fuzzy picker — select and switch to a cluster |
-| `aksctx list`    | List AKS clusters across subscriptions in a table         |
-| `aksctx current` | Show the current active context and API server            |
-| `aksctx refresh` | Re-fetch credentials for the current cluster              |
+| Command          | Description                                                                    |
+|------------------|--------------------------------------------------------------------------------|
+| `aksctx switch`  | Interactive fuzzy picker - select a cluster, then choose its default namespace |
+| `aksctx list`    | List AKS clusters across subscriptions in a table                              |
+| `aksctx current` | Show the current active context and API server                                 |
+| `aksctx refresh` | Re-fetch credentials for the current cluster                                   |
 
 All discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. If the flag is omitted, `aksctx` searches across all accessible subscriptions.
 
@@ -133,6 +134,10 @@ ManagedClusters.ListClusterUserCredentials()
 client-go clientcmd.Merge
   └─ merges into ~/.kube/config
   └─ sets current-context
+                  │
+                  ▼
+Kubernetes API namespace list
+      └─ optional default namespace selection for the new context
 ```
 
 ## Requirements

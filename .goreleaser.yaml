@@ -19,7 +19,7 @@ builds:
       - amd64
       - arm64
     ldflags:
-      - -s -w
+      - -s -w -X github.com/amrinder15/aksctx/cmd.version={{.Version}}
 
 archives:
   - id: aksctx
