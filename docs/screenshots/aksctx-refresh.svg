@@ -1,0 +1,16 @@
+<svg width="1200" height="420" viewBox="0 0 1200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="420" rx="18" fill="#0B1220"/>
+  <rect x="24" y="24" width="1152" height="48" rx="12" fill="#172033"/>
+  <circle cx="56" cy="48" r="8" fill="#FF5F57"/>
+  <circle cx="84" cy="48" r="8" fill="#FEBC2E"/>
+  <circle cx="112" cy="48" r="8" fill="#28C840"/>
+  <text x="600" y="54" fill="#D7E3F4" font-family="SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="20" text-anchor="middle">aksctx refresh</text>
+
+  <g font-family="SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="24" fill="#D7E3F4">
+    <text x="48" y="118">$ aksctx refresh --subscription prod-subscription</text>
+    <text x="48" y="170">Current context: aks-prod-eastus</text>
+    <text x="48" y="214">Looking up cluster in subscription "prod-subscription"...</text>
+    <text x="48" y="258">Refreshing credentials for aks-prod-eastus...</text>
+    <text x="48" y="316" fill="#63E6BE">Credentials refreshed for: aks-prod-eastus</text>
+  </g>
+</svg>

@@ -56,6 +56,26 @@ You need to know the exact resource group and subscription ID by heart. `aksctx`
 
 All discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. If the flag is omitted, `aksctx` searches across all accessible subscriptions.
 
+## Screenshots
+
+Representative terminal screenshots for each command.
+
+### `aksctx switch`
+
+![aksctx switch screenshot](docs/screenshots/aksctx-switch.svg)
+
+### `aksctx list`
+
+![aksctx list screenshot](docs/screenshots/aksctx-list.svg)
+
+### `aksctx current`
+
+![aksctx current screenshot](docs/screenshots/aksctx-current.svg)
+
+### `aksctx refresh`
+
+![aksctx refresh screenshot](docs/screenshots/aksctx-refresh.svg)
+
 ## Install
 
 **Homebrew (macOS/Linux):**
