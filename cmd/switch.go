@@ -3,6 +3,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/amrinder15/aksctx/internal/azure"
 	"github.com/amrinder15/aksctx/internal/kubeconfig"
@@ -73,12 +74,73 @@ var switchCmd = &cobra.Command{
 			return err
 		}
 
+		contextName, _, err := kubeconfig.CurrentContext()
+		if err != nil {
+			return err
+		}
+
+		fmt.Println("\nSelect a default namespace")
+		namespace, skipped, err := promptForNamespaceSelection(contextName)
+		if err != nil {
+			fmt.Printf("⚠  Unable to load namespaces for %s: %v\n", selected.Name, err)
+		} else if skipped {
+			fmt.Println("ℹ  Namespace selection skipped; keeping the context default.")
+		} else {
+			if err := kubeconfig.SetContextNamespace(contextName, namespace); err != nil {
+				return err
+			}
+		}
+
 		fmt.Printf("✅ Switched to cluster: %s\n", selected.Name)
 		fmt.Printf("   Subscription : %s\n", selected.SubscriptionName)
 		fmt.Printf("   Resource Group: %s\n", selected.ResourceGroup)
 		fmt.Printf("   Location      : %s\n", selected.Location)
 		fmt.Printf("   K8s Version   : %s\n", selected.K8sVersion)
+		if namespace != "" {
+			fmt.Printf("   Namespace     : %s\n", namespace)
+		}
 
 		return nil
 	},
+}
+
+func promptForNamespaceSelection(contextName string) (string, bool, error) {
+	namespaces, err := kubeconfig.ListNamespaces(contextName)
+	if err != nil {
+		return "", false, err
+	}
+	if len(namespaces) == 0 {
+		return "", true, nil
+	}
+
+	currentNamespace, err := kubeconfig.ContextNamespace(contextName)
+	if err != nil {
+		return "", false, err
+	}
+	if strings.TrimSpace(currentNamespace) == "" {
+		currentNamespace = "default"
+	}
+
+	items := make([]tui.Item, len(namespaces))
+	for i, namespace := range namespaces {
+		description := "Set as the default namespace for this context"
+		if namespace == currentNamespace {
+			description = "Current default namespace"
+		}
+		items[i] = tui.Item{
+			Label:       namespace,
+			Description: description,
+			Value:       namespace,
+		}
+	}
+
+	result, err := tui.Run("Select a default namespace", items)
+	if err != nil {
+		return "", false, err
+	}
+	if result.Aborted || result.Selected == nil {
+		return "", true, nil
+	}
+
+	return result.Selected.Value.(string), false, nil
 }
