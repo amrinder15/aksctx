@@ -1,0 +1,26 @@
+<svg width="1200" height="620" viewBox="0 0 1200 620" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="620" rx="18" fill="#0B1220"/>
+  <rect x="24" y="24" width="1152" height="48" rx="12" fill="#172033"/>
+  <circle cx="56" cy="48" r="8" fill="#FF5F57"/>
+  <circle cx="84" cy="48" r="8" fill="#FEBC2E"/>
+  <circle cx="112" cy="48" r="8" fill="#28C840"/>
+  <text x="600" y="54" fill="#D7E3F4" font-family="SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="20" text-anchor="middle">aksctx s -d</text>
+
+  <g font-family="SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace" font-size="24" fill="#D7E3F4">
+    <text x="48" y="118">$ aksctx s -d --subscription prod-subscription</text>
+    <text x="48" y="162">Discovering AKS clusters in subscription "prod-subscription"...</text>
+    <text x="48" y="214" fill="#63E6BE">Select an AKS cluster</text>
+    <text x="48" y="256">+--------------------------------------------------+</text>
+    <text x="48" y="288">| type to filter...                                |</text>
+    <text x="48" y="320">+--------------------------------------------------+</text>
+    <text x="48" y="372" fill="#7DD3FC">&gt; aks-prod-eastus</text>
+    <text x="310" y="372" fill="#94A3B8">prod-subscription / eastus / rg-platform-prod</text>
+    <text x="48" y="408">  aks-staging-westeu</text>
+    <text x="340" y="408" fill="#94A3B8">dev-subscription / westeurope / rg-platform-staging</text>
+    <text x="48" y="460">Fetching credentials for aks-prod-eastus...</text>
+    <text x="48" y="504" fill="#63E6BE">Select a default namespace</text>
+    <text x="48" y="540" fill="#7DD3FC">&gt; payments</text>
+    <text x="220" y="540" fill="#94A3B8">Current</text>
+    <text x="48" y="576">  flux-system</text>
+  </g>
+</svg>

@@ -3,7 +3,38 @@
 > AKS context switcher — discover and switch between AKS clusters across Azure subscriptions without memorizing resource group names.
 
 ```text
-$ aksctx switch
+$ aksctx s
+
+Select a kubeconfig context
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ aks-prod-eastus
+      minikube
+      dev-west
+
+      3/3  ↑↓ navigate  enter select  esc quit
+
+Select a default namespace
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ payments            Current
+      flux-system
+      kube-system
+
+✅ Switched to context: aks-prod-eastus
+       Cluster       : aks-prod-eastus
+       API server    : https://prod.example:443
+       Namespace     : payments
+```
+
+Use Azure discovery only when you want to find AKS clusters that are not already in your kubeconfig:
+
+```text
+$ aksctx s -d
 
 🔍 Discovering AKS clusters...
 
@@ -29,7 +60,7 @@ Select an AKS cluster
 Limit discovery to a single subscription when you already know its name:
 
 ```bash
-aksctx switch --subscription prod-subscription
+aksctx s -d --subscription prod-subscription
 aksctx list --subscription prod-subscription
 aksctx refresh --subscription prod-subscription
 ```
@@ -43,26 +74,29 @@ az aks get-credentials --resource-group rg-platform-prod --name aks-prod-eastus 
 kubectx aks-prod-eastus
 ```
 
-You need to know the exact resource group and subscription ID by heart. `aksctx` discovers all clusters across all your subscriptions and lets you fuzzy-search and switch in one command.
+You need to know the exact resource group and subscription ID by heart. `aksctx` lets you switch local contexts immediately, and when needed it discovers AKS clusters across all your subscriptions and imports them in one command.
 
 ## Commands
 
-| Command          | Description                                                                    |
-|------------------|--------------------------------------------------------------------------------|
-| `aksctx switch`  | Interactive fuzzy picker - select a cluster, then choose its default namespace |
-| `aksctx list`    | List AKS clusters across subscriptions in a table                              |
-| `aksctx current` | Show the current active context and API server                                 |
-| `aksctx refresh` | Re-fetch credentials for the current cluster                                   |
+- `aksctx switch` or `aksctx s` - Interactive fuzzy picker for existing kubeconfig contexts, then choose a default namespace
+- `aksctx switch --discovery` or `aksctx s -d` - Discover AKS clusters from Azure, import credentials, then choose a default namespace
+- `aksctx list` - List AKS clusters across subscriptions in a table
+- `aksctx current` - Show the current active context and API server
+- `aksctx refresh` - Re-fetch credentials for the current cluster
 
-All discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. If the flag is omitted, `aksctx` searches across all accessible subscriptions.
+Discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. For `switch`, that flag is only valid with `--discovery`.
 
 ## Screenshots
 
 Representative terminal screenshots for each command.
 
-### `aksctx switch`
+### `aksctx s`
 
 ![aksctx switch screenshot](docs/screenshots/aksctx-switch.svg)
+
+### `aksctx s -d`
+
+![aksctx switch discovery screenshot](docs/screenshots/aksctx-switch-discovery.svg)
 
 ### `aksctx list`
 
@@ -83,6 +117,10 @@ Representative terminal screenshots for each command.
 ```bash
 brew install amrinder15/tap/aksctx
 ```
+
+**Windows:**
+
+Download the latest `aksctx` Windows binary from the [GitHub releases page](https://github.com/amrinder15/aksctx/releases).
 
 To publish new Homebrew builds for this tap, create and push a semantic version tag:
 
@@ -130,7 +168,7 @@ This keeps AKS contexts ready for Azure CLI-based authentication without a separ
 ## Architecture
 
 ```text
-aksctx switch
+aksctx s -d
       │
       ▼
 DefaultAzureCredential (azidentity)
