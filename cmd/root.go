@@ -45,6 +45,7 @@ func init() {
 
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(switchCmd)
+	rootCmd.AddCommand(diffCmd)
 	rootCmd.AddCommand(currentCmd)
 	rootCmd.AddCommand(refreshCmd)
 }

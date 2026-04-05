@@ -65,6 +65,68 @@ aksctx list --subscription prod-subscription
 aksctx refresh --subscription prod-subscription
 ```
 
+Compare two AKS clusters through an interactive subscription-first workflow:
+
+```text
+$ aksctx diff
+
+🔍 Loading Azure subscriptions for AKS comparison...
+
+Select the left subscription
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ prod-subscription      00000000-0000-0000-0000-000000000000
+      qa-subscription        11111111-1111-1111-1111-111111111111
+
+Select the left AKS cluster
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ aks-prod-eastus       prod-subscription / eastus / rg-platform-prod / k8s 1.29.4 / 6 nodes
+
+Select the right subscription
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ qa-subscription       11111111-1111-1111-1111-111111111111
+
+Select the right AKS cluster
+╭──────────────────────────────╮
+│ type to filter...            │
+╰──────────────────────────────╯
+
+▶ aks-qa-eastus         qa-subscription / eastus / rg-platform-qa / k8s 1.28.9 / 3 nodes
+
+Comparing aks-prod-eastus and aks-stage-eastus
+Left         : prod-subscription / rg-platform-prod / eastus
+Right        : qa-subscription / rg-platform-qa / eastus
+Differences  : 9/41 fields
+Missing      : 0 fields
+Major drift  : platform drift, network drift, node-pool drift
+
+IDENTITY
+FIELD             LEFT                 RIGHT                RESULT
+-----             ----                 -----                ------
+Cluster name      aks-prod-eastus      aks-qa-eastus        DIFF
+Subscription      prod-subscription    qa-subscription      DIFF
+Resource group    rg-platform-prod     rg-platform-qa       DIFF
+
+PLATFORM
+FIELD                LEFT        RIGHT       RESULT
+-----                ----        -----       ------
+Kubernetes version   1.29.4      1.28.9      DIFF
+
+NODE POOLS
+FIELD                          LEFT               RIGHT              RESULT
+-----                          ----               -----              ------
+Node pool count                2                  1                  DIFF
+Node pool systempool VM size   Standard_D4s_v5    Standard_D2s_v5    DIFF
+```
+
 ## Why
 
 Switching between AKS clusters normally requires:
@@ -81,10 +143,11 @@ You need to know the exact resource group and subscription ID by heart. `aksctx`
 - `aksctx switch` or `aksctx s` - Interactive fuzzy picker for existing kubeconfig contexts, then choose a default namespace
 - `aksctx switch --discovery` or `aksctx s -d` - Discover AKS clusters from Azure, import credentials, then choose a default namespace
 - `aksctx list` - List AKS clusters across subscriptions in a table
+- `aksctx diff` - Select left and right subscriptions and AKS clusters interactively, then compare them by identity, platform, network, add-ons, and node-pool shape
 - `aksctx current` - Show the current active context and API server
 - `aksctx refresh` - Re-fetch credentials for the current cluster
 
-Discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. For `switch`, that flag is only valid with `--discovery`.
+Discovery commands support `--subscription <name>` to restrict the search to one Azure subscription. For `switch`, that flag is only valid with `--discovery`. `diff` always uses interactive subscription selection and does not accept `--subscription`.
 
 ## Screenshots
 
