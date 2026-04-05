@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1.0 - 2026-04-04
+
+### Added in 1.1.0
+
+- Add `aksctx diff` for interactive AKS-to-AKS comparison using subscription-first selection for the left and right clusters.
+- Compare AKS identity, platform, access, network, add-on, and node-pool fields in a single report.
+
 ## 1.0.0 - 2026-04-04
 
 ### Added
